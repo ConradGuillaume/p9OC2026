@@ -47,9 +47,15 @@ export default ({ data: bills, loading, error }) => {
   } else if (error) {
     return ErrorPage(error)
   }
-  // Ensure bills are displayed from latest to earliest
+  // Ensure bills are displayed from latest to earliest using raw dates when available
   const sortedBills = (bills && bills.length)
-    ? [...bills].sort((a, b) => (a.date < b.date ? 1 : -1))
+    ? [...bills].sort((a, b) => {
+      const aTime = new Date(a.rawDate ?? a.date).getTime()
+      const bTime = new Date(b.rawDate ?? b.date).getTime()
+      const aSafe = Number.isNaN(aTime) ? 0 : aTime
+      const bSafe = Number.isNaN(bTime) ? 0 : bTime
+      return bSafe - aSafe
+    })
     : bills
 
   return (`
